@@ -17,6 +17,7 @@ volatile unsigned int buzsec;
 volatile unsigned char DispData;
 
 uint16_t usartNum;
+uint8_t senddata[1];
 /**********************************************************************/
 /**********************************************************************/
 /***********************************************************************
@@ -111,7 +112,7 @@ void Kscan()
 			if((KeyOldFlag & 0x01) && (KeyOldFlag & 0x02))
 			{
                  Delay_nms (3000);
-				 Delay_nms (1000);
+				 Delay_nms (3000);
 				 childflg = childflg ^ 0x01;
 				 if((KeyOldFlag & 0x01) && (KeyOldFlag & 0x02)){
 					 if(childflg ==1){
@@ -225,9 +226,11 @@ void Kscan()
 		KeyOldFlag = 0;
 		KeyREFFlag = 0;
 	}
-	if(usartNum >=10000){
+	if(usartNum >=5000){
 		usartNum =0;
-	  ref.senddata=(ref.windlevel  | ref.filterNet<< 4 | ref.timerTim <<5 |ref.childLock << 6|ref.powerflg<<7 ) & 0xff;
+		// Sys_set ();
+		ref.powerflg=1;
+	  senddata[0]=(ref.windlevel  | ref.filterNet<< 4 | ref.timerTim <<5 |ref.childLock << 6|ref.powerflg<<7 ) & 0xff;
 	  USART1_SendData();
 	}
 }
@@ -258,7 +261,7 @@ mainÖ÷º¯Êı
 ***********************************************************************/
 void main(void)
 {
-
+    static uint8_t poweron=0;
 	asm("clrwdt");
 	USART1_Init();
 	Init_ic();
@@ -271,8 +274,8 @@ void main(void)
 	{
 		OSCCON = 0x71;
 	
-		ref.powerflg = HDKey_Scan(1);
-		if(ref.powerflg==1){
+		poweron= HDKey_Scan(1);
+		if(poweron==1){
 			LED_RED = 1;
 			ref.powerflg=1;
 		}

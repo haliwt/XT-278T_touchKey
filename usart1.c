@@ -3,7 +3,7 @@
 struct  senddata ref;
 
 
-uint8_t senddata[1];
+extern uint8_t senddata[1];
 
 
 
@@ -71,14 +71,14 @@ void USART1_Init(void)
 
 void USART1_SendData(void)
 {
-	    senddata[0]=(ref.windlevel  | ref.filterNet<< 4 | ref.timerTim <<5 |ref.childLock <<6 | ref.powerflg <<7) & 0xff;
+	    //senddata[0]=(ref.windlevel  | ref.filterNet<< 4 | ref.timerTim <<5 |ref.childLock <<6 | ref.powerflg <<7) & 0xff;
 		
         TXREG1   = 0xAA; //Recebuffer[0];//Recebuffer[0] ;
-		delay_ns(200);
+		delay_ns(100);//delay_ns(200);
 		TXREG1   = senddata[0];  //数据
-		delay_ns(200);
+		delay_ns(100);//delay_ns(200);
 		TXREG1   = BCC();
-		delay_ns(200); 	
+		delay_ns(100); 	//delay_ns(400); 	
 		
 
 }
@@ -97,7 +97,7 @@ uint8_t BCC(void)
 	 sbytes[0]=0xAA;
 	 uint8_t tembyte ;//= sbytes[0];
 	 
-	 senddata[0]=(ref.windlevel  | ref.filterNet<< 4 | ref.timerTim <<5 |ref.childLock <<6| ref.powerflg <<7) & 0xff;
+	// senddata[0]=(ref.windlevel  | ref.filterNet<< 4 | ref.timerTim <<5 |ref.childLock <<6| ref.powerflg <<7) & 0xff;
 	 // senddata[0]=ref.senddata ;
       tembyte =  sbytes[0]^ senddata[0];
     
@@ -125,7 +125,7 @@ void Set_Usart_Async(void)
 	
 	//SPBRG1 = 51;  //WT.EDIT 	
 	
-	
+	//SPBRG1 = 100;  //WT.EDIT 	
 	
 	SYNC1 = 0;				//0为异步模式，1为同步模式
 	SCKP1 = 0;
