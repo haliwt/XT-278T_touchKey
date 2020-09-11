@@ -119,10 +119,12 @@ void Kscan()
 								
 								ref.childLock = 1;
 								Led4=1;
+								 ref.senddata=1;
 					 }
 					 else{
 					 	ref.childLock = 0;
 						Led4=0;
+						 ref.senddata=1;
 
 					 }
 				 
@@ -137,7 +139,9 @@ void Kscan()
 				{
 					if(ref.childLock ==1){
 						
-						ref.windlevel =0x0f;
+						ref.powerflg=1;
+	 				 	senddata[0]=0X08;
+	  					USART1_SendData();
 					}
 					else{
 						KeyREFFlag |= 0x01;
@@ -145,10 +149,12 @@ void Kscan()
 						if(timerflg ==1){
 								Led8=1;
 								ref.timerTim = 1;
+								 ref.senddata=1;
 						}
 						else{
 							    Led8=0;
 								ref.timerTim = 0;
+								 ref.senddata=1;
 
 						}
 				 }
@@ -162,7 +168,9 @@ void Kscan()
 				if(0 == (KeyREFFlag & 0x02))
 				{
 					if(ref.childLock ==1){
-							ref.windlevel =0x0f;
+							
+						senddata[0]=0X08;
+	  					USART1_SendData();
 					}
                     else {
 						KeyREFFlag |= 0x02;
@@ -178,6 +186,7 @@ void Kscan()
 							Led4 =1;
 							Led3 = 0;
 							Led2=0;
+							 ref.senddata=1;
 						
 					}
 					else if(windflg ==2){ //2µµ
@@ -189,6 +198,7 @@ void Kscan()
 						Led7 =0;
 						
 						ref.windlevel =2;
+						 ref.senddata=1;
 					}
 					else if(windflg ==3){ //3µµ
 						  Led7 =1;
@@ -198,6 +208,7 @@ void Kscan()
 					      Led6=0;
 						  Led9 =0;
 						  ref.windlevel =3;
+						   ref.senddata=1;
 					}
 					else if(windflg ==4){ //Auto 
 						  ref.windlevel =4;
@@ -208,7 +219,7 @@ void Kscan()
 						  Led9 =0;
 						  Led1=0;
 					      Led7=0;
-						
+						 ref.senddata=1;
 					}
 
 				}
@@ -226,12 +237,14 @@ void Kscan()
 				{
 					
 					if(ref.childLock ==1){
-						ref.windlevel =0x0f;
+						senddata[0]=0X08;
+	  					USART1_SendData();
 					}
 					else{
 						KeyREFFlag |= 0x04;
 						ref.filterNet =1;
 					    Led3=1;
+					    ref.senddata=1;
 				    }
 				}
 			}
@@ -245,8 +258,8 @@ void Kscan()
 		KeyOldFlag = 0;
 		KeyREFFlag = 0;
 	}
-	if(usartNum >=1000){
-		usartNum =0;
+	if(ref.senddata==1){
+		ref.senddata =0;
 		// Sys_set ();
 		ref.powerflg=1;
 	  senddata[0]=(ref.windlevel  | ref.filterNet<< 4 | ref.timerTim <<5 |ref.childLock << 6|ref.powerflg<<7 ) & 0xff;
