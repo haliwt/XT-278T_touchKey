@@ -226,7 +226,7 @@ void Kscan()
 		KeyOldFlag = 0;
 		KeyREFFlag = 0;
 	}
-	if(usartNum >=5000){
+	if(usartNum >=1000){
 		usartNum =0;
 		// Sys_set ();
 		ref.powerflg=1;
