@@ -15,6 +15,7 @@ struct senddata{
 
 };
 extern struct  senddata ref;
+extern struct  senddata ref;
 
 void USART1_Init(void);
 void USART1_SendData(void);

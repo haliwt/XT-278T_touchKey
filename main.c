@@ -1,14 +1,17 @@
 
 #include <cms.h>
-#include "led.h"
 #include "delay.h"
 #include "mytype.h"
 #include "Touch_Kscan_Library.h"
 #include "REL_Sender.h"
 #include "usart1.h"
+#include "keyled.h"
+#include "slideled.h"
+#include "hdkey.h"
+
 
 /**********************************************************************/
-/*È«¾Ö±äÁ¿ÉùÃ÷*/
+/*??????????*/
 /**********************************************************************/
 volatile unsigned char tcount;
 volatile bit buzf;
@@ -17,14 +20,16 @@ volatile unsigned int buzsec;
 volatile unsigned char DispData;
 
 uint16_t usartNum;
-uint8_t senddata[1];
+uint8_t senddata[2];
+ 
+
 /**********************************************************************/
 /**********************************************************************/
 /***********************************************************************
-×Óº¯Êı¹¦ÄÜ£ºÉÏµç³õÊ¼»¯ÏµÍ³¼Ä´æÆ÷
-Èë¿Ú²ÎÊı£º
-·µ»ØÊı¾İ£º
-±¸×¢£º
+????????????????????????
+????????
+?????????
+?????
 ***********************************************************************/
 void Init_ic (void)
 {
@@ -37,8 +42,10 @@ void Init_ic (void)
 	WDTCON = 0x01;
 	TRISA = 0B00000000;
 	TRISB = 0B00000000;
-	TRISC = 0x01;
-	TRISD = 0x03;
+	TRISC = 0x00;
+	TRISD = 0x00;
+	Clr(TRISD, 0); //code down load code 
+	Clr(TRISD, 1);
 	OPTION_REG = 0;
 	OSCCON = 0x71;
 	PIE1 = 0;
@@ -50,28 +57,28 @@ void Init_ic (void)
 
 }
 /***********************************************************************
-º¯Êı¹¦ÄÜ£º³õÊ¼ÉÏµçRAM¸³Öµ
-Èë¿Ú²ÎÊı£º
-·µ»ØÊı¾İ£º
-±¸×¢£º
+???????????????RAM???
+????????
+?????????
+?????
 ***********************************************************************/
 void Init_ram (void)
 {
 	asm("clrwdt");
 	PIE2 = 0;
 	PIE1 = 0B00000010;
-	PR2 = 125;				//8MÏÂ½«TMR2ÉèÖÃÎª125usÖĞ¶Ï
-	T2CON = 5;				//Ê¹ÄÜ¶¨Ê±Æ÷2
+	PR2 = 125;				//8M???TMR2?????125us???
+	T2CON = 5;				//???????2
 	
-	INTCON = 0XC0;			//Ê¹ÄÜÖĞ¶Ï
+	INTCON = 0XC0;			//??????
 	buzf = 1;
 	buzsec = 600;
 }
 /***********************************************************************
-º¯Êı¹¦ÄÜ£ºÏµÍ³¼Ä´æÆ÷Ë¢ĞÂ
-Èë¿Ú²ÎÊı£º
-·µ»ØÊı¾İ£º
-±¸×¢£º
+???????????????????
+????????
+?????????
+?????
 ***********************************************************************/
 void Sys_set (void)
 {
@@ -79,7 +86,7 @@ void Sys_set (void)
 	WDTCON = 0x01;
 	TRISA = 0B00000000;
 	TRISB = 0B00000000;
-	TRISC = 0x01;
+	TRISC = 0x00;
 	TRISD = 0x00;
 	OPTION_REG = 0;
 	PIE1 = 0B00000010;
@@ -92,7 +99,7 @@ void Sys_set (void)
 }
 
 /***********************************************************************
-//¼ü´¦Àíº¯Êı
+//??????????
 ***********************************************************************/
 void Kscan()
 {
@@ -104,11 +111,12 @@ void Kscan()
 	{
 		if(i != KeyOldFlag)
 		{
-			KeyOldFlag = i;			//ÓĞ¼ì²âµ½°´¼ü
+			KeyOldFlag = i;			//????????
 
 			buzf = 1;
 			buzsec = 600;
-		#if 1
+
+			#if 1
 			if((KeyOldFlag & 0x01) && (KeyOldFlag & 0x02))
 			{
                  Delay_nms (3000);
@@ -133,9 +141,12 @@ void Kscan()
          
 
        #endif 
+		
 		if(KeyOldFlag & 0x01)
 		{
-				if(0 == (KeyREFFlag & 0x01)) //¶¨Ê±°´¼ü
+				if(0 == (KeyREFFlag & 0x01)) //KEY Timer_KEY
+				{
+					if(0 == (KeyREFFlag & 0x01)) //å®šæ—¶æŒ‰é”®
 				{
 					if(ref.childLock ==1){
 						
@@ -159,12 +170,11 @@ void Kscan()
 						}
 				 }
 				}
-		}
+				}
+			}
 		
-			
-			if(KeyOldFlag & 0x02)  //·çËÙµ÷½Ú°´¼ü
+			if(KeyOldFlag & 0x02)  //KEY ---WIND_KEY
 			{
-				
 				if(0 == (KeyREFFlag & 0x02))
 				{
 					if(ref.childLock ==1){
@@ -177,7 +187,7 @@ void Kscan()
 						windflg ++;
 						if(windflg==1){
 							
-							ref.windlevel =1;  //Ë¯Ãß·ç
+							ref.windlevel =1;  //ç¡çœ é£
 							Led1=1;
 							Led6=0;
 						    Led9=0;
@@ -189,10 +199,10 @@ void Kscan()
 							 ref.senddata=1;
 						
 					}
-					else if(windflg ==2){ //2µµ
+					else if(windflg ==2){ //2æ¡£
 						Led9=1;
-						Led2= 1; //¶¨Ê±Æ÷°´¼üµÆ
-						Led4 =0; //ÂËÍø°´¼üµÆ ´ò¿ª
+						Led2= 1; //å®šæ—¶å™¨æŒ‰é”®ç¯
+						Led4 =0; //æ»¤ç½‘æŒ‰é”®ç¯ æ‰“å¼€
 						Led6=0;
 					    Led1=0;
 						Led7 =0;
@@ -200,10 +210,10 @@ void Kscan()
 						ref.windlevel =2;
 						 ref.senddata=1;
 					}
-					else if(windflg ==3){ //3µµ
+					else if(windflg ==3){ //3æ¡£
 						  Led7 =1;
-						  Led2= 1; //¶¨Ê±Æ÷°´¼üµÆ
-						  Led4 =0; //ÂËÍø°´¼üµÆ ´ò¿ª
+						  Led2= 1; //å®šæ—¶å™¨æŒ‰é”®ç¯
+						  Led4 =0; //æ»¤ç½‘æŒ‰é”®ç¯ æ‰“å¼€
 						  Led1=0;
 					      Led6=0;
 						  Led9 =0;
@@ -214,8 +224,8 @@ void Kscan()
 						  ref.windlevel =4;
 						  windflg=0;
 						  Led6 =1;
-						  Led2= 1; //¶¨Ê±Æ÷°´¼üµÆ
-						  Led4 =0; //ÂËÍø°´¼üµÆ ´ò¿ª
+						  Led2= 1; //å®šæ—¶å™¨æŒ‰é”®ç¯
+						  Led4 =0; //æ»¤ç½‘æŒ‰é”®ç¯ æ‰“å¼€
 						  Led9 =0;
 						  Led1=0;
 					      Led7=0;
@@ -225,34 +235,34 @@ void Kscan()
 				}
 			}
 			
-			}
-			if(KeyOldFlag & 0x04) //ÂËÍøÖÃ»»°´¼ü
+		  }
+		  if(KeyOldFlag & 0x04) //KEY4 POWER_KEY --motor up and dow move
 			{
-
-                 
-
-                 Delay_nms (3000);
-				 Delay_nms (3000);
-				if(KeyOldFlag & 0x04)
+				if(0 == (KeyREFFlag & 0x04))
 				{
-					
-					if(ref.childLock ==1){
-						senddata[0]=0X08;
-	  					USART1_SendData();
+						  Delay_nms (3000);
+					 Delay_nms (3000);
+					if(KeyOldFlag & 0x04)
+					{
+						
+						if(ref.childLock ==1){
+							senddata[0]=0X08;
+		  					USART1_SendData();
+						}
+						else{
+							KeyREFFlag |= 0x04;
+							ref.filterNet =1;
+						    Led3=1;
+						    ref.senddata=1;
+					    }
 					}
-					else{
-						KeyREFFlag |= 0x04;
-						ref.filterNet =1;
-					    Led3=1;
-					    ref.senddata=1;
-				    }
 				}
+
 			}
-		
-		
-			
+		  
 		}
 	}
+	
 	else
 	{
 		KeyOldFlag = 0;
@@ -263,13 +273,14 @@ void Kscan()
 		// Sys_set ();
 		ref.powerflg=1;
 	  senddata[0]=(ref.windlevel  | ref.filterNet<< 4 | ref.timerTim <<5 |ref.childLock << 6|ref.powerflg<<7 ) & 0xff;
+	  senddata[1]= 0xCD;
 	  USART1_SendData();
 	}
 }
 
 
 /***********************************************************************
-º¯Êı¹¦ÄÜ£ºÖĞ¶ÏÈë¿Úº¯Êı
+??????????????????
 ***********************************************************************/
 void interrupt time0(void)
 {
@@ -289,7 +300,7 @@ void interrupt time0(void)
 
 
 /***********************************************************************
-mainÖ÷º¯Êı
+main??????
 ***********************************************************************/
 void main(void)
 {
@@ -297,30 +308,27 @@ void main(void)
 	asm("clrwdt");
 	USART1_Init();
 	Init_ic();
-	Delay_nms(200);													//ÉÏµçÑÓÊ±200ms
-	Init_ram();	  //ÉÏµç¸ø³õÖµ
-	
+	Delay_nms(200);													//??????200ms
+	Init_ram();	  //???????
+	Set_Usart_Async();
 	
 	
 	while(1)
 	{
 		OSCCON = 0x71;
 	
-		poweron= HDKey_Scan(1);
-		if(poweron==1){
-			LED_RED = 1;
-			ref.powerflg=1;
-		}
+	
+
 		if(tcount >= 32)
 		{
-			tcount = 0;												//Ö÷³ÌĞòÑ­»·4ms
+			tcount = 0;												//?????????4ms
 			Sys_set();
 			//Display();
-			#if (REL_SENDER_ENABLE == 1)//µ÷ÊÔºê¶¨ÒåÊÇ·ñÎª1
-				REL_SenderLoop();//·¢Âë×Ó³ÌĞò
+			#if (REL_SENDER_ENABLE == 1)//???????????1
+				REL_SenderLoop();//?????????
 			#endif
-			__CMS_CheckTouchKey();	//É¨Ãè°´¼ü
-			Kscan();			//°´¼ü´¦Àí
+			__CMS_CheckTouchKey();	//?????
+			Kscan();			//????????
 		}
 	}
 }

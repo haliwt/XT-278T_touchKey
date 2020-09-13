@@ -3,7 +3,7 @@
 struct  senddata ref;
 
 
-extern uint8_t senddata[1];
+extern uint8_t senddata[2];
 
 
 
@@ -74,11 +74,13 @@ void USART1_SendData(void)
 	    //senddata[0]=(ref.windlevel  | ref.filterNet<< 4 | ref.timerTim <<5 |ref.childLock <<6 | ref.powerflg <<7) & 0xff;
 		
         TXREG1   = 0xAA; //Recebuffer[0];//Recebuffer[0] ;
-		delay_ns(200);//delay_ns(100);
+		delay_ns(100);//delay_ns(100);
 		TXREG1   = senddata[0];  //数据
-		delay_ns(200);//delay_ns(200);
+		delay_ns(100);//delay_ns(200);
+		TXREG1   = senddata[1];  //数据
+		delay_ns(100);//delay_ns(200);
 		TXREG1   = BCC();
-		delay_ns(200); 	//delay_ns(400); 	
+		delay_ns(100); 	//delay_ns(400); 	
 		
 
 }
@@ -95,11 +97,11 @@ uint8_t BCC(void)
 {
      uint8_t sbytes[1];
 	 sbytes[0]=0xAA;
-	 uint8_t tembyte ;//= sbytes[0];
+	 uint8_t tembyte ;
 	 
-	// senddata[0]=(ref.windlevel  | ref.filterNet<< 4 | ref.timerTim <<5 |ref.childLock <<6| ref.powerflg <<7) & 0xff;
+	 //senddata[0]=(ref.windlevel  | ref.filterNet<< 4 | ref.timerTim <<5 |ref.childLock <<6| ref.powerflg <<7) & 0xff;
 	 // senddata[0]=ref.senddata ;
-      tembyte =  sbytes[0]^ senddata[0];
+      tembyte =  sbytes[0]^ senddata[0]^senddata[1];
     
     return tembyte;
 
@@ -121,11 +123,11 @@ SYNC = 0,BRG16 = 1,BRGH = 1;目标波特率 = Fosc/(4*([SPBRGH:SPBRG]+1))
 */
 void Set_Usart_Async(void)
 {
-	SPBRG1 = 102;			//设置波特率为9600 bps，误差0.16%	
+	//SPBRG1 = 102;			//设置波特率为9600 bps，误差0.16%	
 	
-	//SPBRG1 = 51;  //WT.EDIT 	
+	SPBRG1 = 51;  //WT.EDIT 	
 	
-	//SPBRG1 = 100;  //WT.EDIT 	
+
 	
 	SYNC1 = 0;				//0为异步模式，1为同步模式
 	SCKP1 = 0;
