@@ -227,8 +227,6 @@ void Kscan()
 
 				}
 			}
-			
-			
 			if(KeyOldFlag & 0x04) //Net KEY
 			{
 
@@ -242,9 +240,6 @@ void Kscan()
 					 usartNum =1;
 				}
 			}
-		
-		
-			
 		}
 	}
 	else
