@@ -100,7 +100,7 @@ void Kscan()
 	static unsigned int KeyOldFlag = 0,KeyREFFlag = 0;
 	static uint8_t childflg =0 ,timerflg =0,windflg =0,count=0;
 	unsigned int i = (unsigned int)((KeyFlag[1]<<8) | KeyFlag[0]);
-
+	uint8_t usartWindNum=0;
 	if(i)
 	{
 		if(i != KeyOldFlag)
@@ -160,10 +160,12 @@ void Kscan()
 				if(0 == (KeyREFFlag & 0x02))
 				{
 					KeyREFFlag |= 0x02;
+					count =0;
 					windflg ++;
-					if(windflg==1){
+					switch(windflg){
 						
-						ref.windlevel =1;  //˯�߷�
+					 case 1: 
+						count =1;  //˯�߷�
 						Led1=1;
 						Led6=0;
 					    Led9=0;
@@ -172,10 +174,10 @@ void Kscan()
 						Led4 =1;
 						Led3 = 0;
 						Led2=0;
+					  break;
 						
-						
-					}
-					else if(windflg ==2){ //2��
+					
+					case 2:
 						Led9=1;
 						Led2= 1; //��ʱ��������
 						Led4 =0; //���������� ��
@@ -183,21 +185,22 @@ void Kscan()
 					    Led1=0;
 						Led7 =0;
 						
-						ref.windlevel =2;
-						
-					}
-					else if(windflg ==3){ //3��
+					
+						count =2;
+					break;
+					case 3:
 						  Led7 =1;
 						  Led2= 1; //��ʱ��������
 						  Led4 =0; //���������� ��
 						  Led1=0;
 					      Led6=0;
 						  Led9 =0;
-						  ref.windlevel =3;
-						 
-					}
-					else if(windflg ==4){ //Auto 
-						  ref.windlevel =4;
+						
+						 count =3;
+					break;
+					
+					case 4:
+						  count =4;
 						  windflg=0;
 						  Led6 =1;
 						  Led2= 1; //��ʱ��������
@@ -205,10 +208,16 @@ void Kscan()
 						  Led9 =0;
 						  Led1=0;
 					      Led7=0;
-						  
 						
+						
+					break;
 					}
-					  usartNum =1;
+				    if(count !=0){
+
+						ref.windlevel = count ;
+						usartWindNum=1;
+					
+					} 
 
 				}
 			}
@@ -236,15 +245,13 @@ void Kscan()
 		KeyOldFlag = 0;
 		KeyREFFlag = 0;
 	}
-	if(usartNum ==1){
-
-			usartNum =0;
-
-
-					// Sys_set ();
-				senddata[0]=(ref.windlevel | ref.filterNet<< 4 | ref.timerTim <<5 |ref.childLock << 6|ref.powerflg<<7 ) & 0xff;
-				//senddata[1] =ref.windlevel & 0x0f;
-				USART1_SendData();
+	if(usartNum ==1 || usartWindNum ==1){
+		
+		usartNum =0;
+		// Sys_set ();
+		senddata[0]=(ref.windlevel | ref.filterNet<< 4 | ref.timerTim <<5 |ref.childLock << 6|ref.powerflg<<7 ) & 0xff;
+		//senddata[1] =ref.windlevel & 0x0f;
+		USART1_SendData();
 			
 		}
 	}
