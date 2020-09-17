@@ -2,40 +2,27 @@
 #define __HDKEY_H__
 
 #include <cms.h>
-#include "keyled.h"
-#include"mytype.h"
-#include "usart1.h"
-
-
 
 /*******************************************************
-					IO����				  
+					位定义
 ********************************************************/
-#define		Led1		RA3
-#define		Led2		RA4  //D12
-#define		Led3		RB0  //
-#define		Led4		RB2   //com control 4 led swtich
-#define     Led5        RB1
-#define     Led6        RB5
-#define     Led7        RC1
-#define     Led8        RC2
-#define     Led9        RC3
+#define	Set(x,y)	((x) |= (1 << (y)))				//位置1
+#define	Clr(x,y)	((x) &= ~ (1 << (y)))			//位清0
 
+#define	b0(x,y)		(((x) & (1 << (y))) == 0)		//位0判断 if(b0(x,y)) 判断是否为0
+#define	b1(x,y)		((x) & (1 << (y)))				//位1判断 if(b1(x,y)) 判断是否为1
+/*******************************************************
+					宏定义
+********************************************************/
+typedef 	unsigned char  uint8_t ;
+typedef    char     int8_t;
+typedef     unsigned int   uint16_t;
+typedef  	int     int16_t;
+/*******************************************************/
+/*******************************************************/
+/*******************************************************/
 
-
-
-#define    LED_RED     RD2
-
-
-#define  POWER_KEY    RC0     //input IO ������
-#define  POWER_PRES   1
-
-
-//extern uint8_t  ChildLock ;
-
-void TurnOff_LED(void);
-void Net_LED_On(void);
-unsigned char HDKey_Scan(unsigned char mode);
+#define		HDKey	RC0				//����RC�� ȡ��HDKey input
 
 
 
@@ -43,6 +30,7 @@ unsigned char HDKey_Scan(unsigned char mode);
 
 
 
+void HDKEY_LED_Init(void);
 
 
 

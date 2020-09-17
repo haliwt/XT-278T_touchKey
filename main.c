@@ -1,17 +1,14 @@
 
 #include <cms.h>
+#include "led.h"
 #include "delay.h"
 #include "mytype.h"
 #include "Touch_Kscan_Library.h"
 #include "REL_Sender.h"
 #include "usart1.h"
-#include "keyled.h"
-#include "slideled.h"
-#include "hdkey.h"
-
 
 /**********************************************************************/
-/*??????????*/
+/*ȫ�ֱ�������*/
 /**********************************************************************/
 volatile unsigned char tcount;
 volatile bit buzf;
@@ -21,15 +18,13 @@ volatile unsigned char DispData;
 
 uint16_t usartNum;
 uint8_t senddata[2];
- 
-
 /**********************************************************************/
 /**********************************************************************/
 /***********************************************************************
-????????????????????????
-????????
-?????????
-?????
+�Ӻ������ܣ��ϵ��ʼ��ϵͳ�Ĵ���
+��ڲ�����
+�������ݣ�
+��ע��
 ***********************************************************************/
 void Init_ic (void)
 {
@@ -42,10 +37,8 @@ void Init_ic (void)
 	WDTCON = 0x01;
 	TRISA = 0B00000000;
 	TRISB = 0B00000000;
-	TRISC = 0x00;
-	TRISD = 0x00;
-	Clr(TRISD, 0); //code down load code 
-	Clr(TRISD, 1);
+	TRISC = 0x01;
+	TRISD = 0x03;
 	OPTION_REG = 0;
 	OSCCON = 0x71;
 	PIE1 = 0;
@@ -57,28 +50,28 @@ void Init_ic (void)
 
 }
 /***********************************************************************
-???????????????RAM???
-????????
-?????????
-?????
+�������ܣ���ʼ�ϵ�RAM��ֵ
+��ڲ�����
+�������ݣ�
+��ע��
 ***********************************************************************/
 void Init_ram (void)
 {
 	asm("clrwdt");
 	PIE2 = 0;
 	PIE1 = 0B00000010;
-	PR2 = 125;				//8M???TMR2?????125us???
-	T2CON = 5;				//???????2
+	PR2 = 125;				//8M�½�TMR2����Ϊ125us�ж�
+	T2CON = 5;				//ʹ�ܶ�ʱ��2
 	
-	INTCON = 0XC0;			//??????
+	INTCON = 0XC0;			//ʹ���ж�
 	buzf = 1;
 	buzsec = 600;
 }
 /***********************************************************************
-???????????????????
-????????
-?????????
-?????
+�������ܣ�ϵͳ�Ĵ���ˢ��
+��ڲ�����
+�������ݣ�
+��ע��
 ***********************************************************************/
 void Sys_set (void)
 {
@@ -86,7 +79,7 @@ void Sys_set (void)
 	WDTCON = 0x01;
 	TRISA = 0B00000000;
 	TRISB = 0B00000000;
-	TRISC = 0x00;
+	TRISC = 0x01;
 	TRISD = 0x00;
 	OPTION_REG = 0;
 	PIE1 = 0B00000010;
@@ -99,7 +92,7 @@ void Sys_set (void)
 }
 
 /***********************************************************************
-//??????????
+//����������
 ***********************************************************************/
 void Kscan()
 {
@@ -111,12 +104,11 @@ void Kscan()
 	{
 		if(i != KeyOldFlag)
 		{
-			KeyOldFlag = i;			//????????
+			KeyOldFlag = i;			//�м�⵽����
 
 			buzf = 1;
 			buzsec = 600;
-
-			#if 1
+		#if 1
 			if((KeyOldFlag & 0x01) && (KeyOldFlag & 0x02))
 			{
                  Delay_nms (3000);
@@ -127,12 +119,12 @@ void Kscan()
 								
 								ref.childLock = 1;
 								Led4=1;
-								 ref.senddata=1;
+								 USART1_SendData();
 					 }
 					 else{
 					 	ref.childLock = 0;
 						Led4=0;
-						 ref.senddata=1;
+						 USART1_SendData();
 
 					 }
 				 
@@ -141,146 +133,120 @@ void Kscan()
          
 
        #endif 
-		
 		if(KeyOldFlag & 0x01)
 		{
-				if(0 == (KeyREFFlag & 0x01)) //KEY Timer_KEY
+				if(0 == (KeyREFFlag & 0x01)) //��ʱ����
 				{
-					if(0 == (KeyREFFlag & 0x01)) //定时按键
-				{
-					if(ref.childLock ==1){
-						
-						ref.powerflg=1;
-	 				 	senddata[0]=0X08;
-	  					USART1_SendData();
+					KeyREFFlag |= 0x01;
+					timerflg = timerflg ^ 0x01;
+					if(timerflg ==1){
+							Led8=1;
+							ref.timerTim = 1;
+							 USART1_SendData();
 					}
 					else{
-						KeyREFFlag |= 0x01;
-						timerflg = timerflg ^ 0x01;
-						if(timerflg ==1){
-								Led8=1;
-								ref.timerTim = 1;
-								 ref.senddata=1;
-						}
-						else{
-							    Led8=0;
-								ref.timerTim = 0;
-								 ref.senddata=1;
+						     Led8=0;
+							ref.timerTim = 0;
+							 USART1_SendData();
 
-						}
-				 }
+					}
 				}
-				}
-			}
+		}
 		
-			if(KeyOldFlag & 0x02)  //KEY ---WIND_KEY
+			
+			if(KeyOldFlag & 0x02)  //���ٵ��ڰ���
 			{
 				if(0 == (KeyREFFlag & 0x02))
 				{
-					if(ref.childLock ==1){
-							
-						senddata[0]=0X08;
-	  					USART1_SendData();
-					}
-                    else {
-						KeyREFFlag |= 0x02;
-						windflg ++;
-						if(windflg==1){
-							
-							ref.windlevel =1;  //睡眠风
-							Led1=1;
-							Led6=0;
-						    Led9=0;
-							Led7 =0;
-							Led8= 0;
-							Led4 =1;
-							Led3 = 0;
-							Led2=0;
-							 ref.senddata=1;
+					KeyREFFlag |= 0x02;
+					windflg ++;
+					if(windflg==1){
+						
+						ref.windlevel =1;  //˯�߷�
+						Led1=1;
+						Led6=0;
+					    Led9=0;
+						Led7 =0;
+						Led8= 0;
+						Led4 =1;
+						Led3 = 0;
+						Led2=0;
+						 USART1_SendData();
 						
 					}
-					else if(windflg ==2){ //2档
+					else if(windflg ==2){ //2��
 						Led9=1;
-						Led2= 1; //定时器按键灯
-						Led4 =0; //滤网按键灯 打开
+						Led2= 1; //��ʱ��������
+						Led4 =0; //���������� ��
 						Led6=0;
 					    Led1=0;
 						Led7 =0;
 						
 						ref.windlevel =2;
-						 ref.senddata=1;
+						 USART1_SendData();
 					}
-					else if(windflg ==3){ //3档
+					else if(windflg ==3){ //3��
 						  Led7 =1;
-						  Led2= 1; //定时器按键灯
-						  Led4 =0; //滤网按键灯 打开
+						  Led2= 1; //��ʱ��������
+						  Led4 =0; //���������� ��
 						  Led1=0;
 					      Led6=0;
 						  Led9 =0;
 						  ref.windlevel =3;
-						   ref.senddata=1;
+						   USART1_SendData();
 					}
 					else if(windflg ==4){ //Auto 
 						  ref.windlevel =4;
 						  windflg=0;
 						  Led6 =1;
-						  Led2= 1; //定时器按键灯
-						  Led4 =0; //滤网按键灯 打开
+						  Led2= 1; //��ʱ��������
+						  Led4 =0; //���������� ��
 						  Led9 =0;
 						  Led1=0;
 					      Led7=0;
-						 ref.senddata=1;
+						   USART1_SendData();
+						
 					}
 
 				}
 			}
 			
-		  }
-		  if(KeyOldFlag & 0x04) //KEY4 POWER_KEY --motor up and dow move
+			
+			if(KeyOldFlag & 0x04) //�����û�����
 			{
-				if(0 == (KeyREFFlag & 0x04))
-				{
-						  Delay_nms (3000);
-					 Delay_nms (3000);
-					if(KeyOldFlag & 0x04)
-					{
-						
-						if(ref.childLock ==1){
-							senddata[0]=0X08;
-		  					USART1_SendData();
-						}
-						else{
-							KeyREFFlag |= 0x04;
-							ref.filterNet =1;
-						    Led3=1;
-						    ref.senddata=1;
-					    }
-					}
-				}
 
+                 Delay_nms (3000);
+				 Delay_nms (3000);
+				if(KeyOldFlag & 0x04)
+				{
+					KeyREFFlag |= 0x04;
+					ref.filterNet =1;
+				    Led3=1;
+					 USART1_SendData();
+				}
 			}
-		  
+		
+		
+			
 		}
 	}
-	
 	else
 	{
 		KeyOldFlag = 0;
 		KeyREFFlag = 0;
 	}
-	if(ref.senddata==1){
-		ref.senddata =0;
+	if(usartNum >=1000){
+		usartNum =0;
 		// Sys_set ();
 		ref.powerflg=1;
 	  senddata[0]=(ref.windlevel  | ref.filterNet<< 4 | ref.timerTim <<5 |ref.childLock << 6|ref.powerflg<<7 ) & 0xff;
-	  senddata[1]= 0xCD;
 	  USART1_SendData();
 	}
 }
 
 
 /***********************************************************************
-??????????????????
+�������ܣ��ж���ں���
 ***********************************************************************/
 void interrupt time0(void)
 {
@@ -300,7 +266,7 @@ void interrupt time0(void)
 
 
 /***********************************************************************
-main??????
+main������
 ***********************************************************************/
 void main(void)
 {
@@ -308,27 +274,31 @@ void main(void)
 	asm("clrwdt");
 	USART1_Init();
 	Init_ic();
-	Delay_nms(200);													//??????200ms
-	Init_ram();	  //???????
-	Set_Usart_Async();
+	Delay_nms(200);													//�ϵ���ʱ200ms
+	Init_ram();	  //�ϵ����ֵ
+	
 	
 	
 	while(1)
 	{
 		OSCCON = 0x71;
-	
-	
-
+	   #if 0
+		poweron= HDKey_Scan(1);
+		if(poweron==1){
+			LED_RED = 1;
+			ref.powerflg=1;
+		}
+		#endif 
 		if(tcount >= 32)
 		{
-			tcount = 0;												//?????????4ms
+			tcount = 0;												//������ѭ��4ms
 			Sys_set();
 			//Display();
-			#if (REL_SENDER_ENABLE == 1)//???????????1
-				REL_SenderLoop();//?????????
+			#if (REL_SENDER_ENABLE == 1)//���Ժ궨���Ƿ�Ϊ1
+				REL_SenderLoop();//�����ӳ���
 			#endif
-			__CMS_CheckTouchKey();	//?????
-			Kscan();			//????????
+			__CMS_CheckTouchKey();	//ɨ�谴��
+			Kscan();			//��������
 		}
 	}
 }

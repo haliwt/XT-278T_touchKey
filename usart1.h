@@ -6,7 +6,7 @@
 
 struct senddata{
      uint8_t windlevel ;
-	 uint8_t senddata : 1;
+	 uint8_t senddata;
 	 uint8_t filterNet :1;
 	 uint8_t timerTim :1;
 	 uint8_t sleep :1;
@@ -14,7 +14,6 @@ struct senddata{
 	 uint8_t powerflg:1;
 
 };
-extern struct  senddata ref;
 extern struct  senddata ref;
 
 void USART1_Init(void);
