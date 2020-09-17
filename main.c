@@ -18,6 +18,7 @@ volatile unsigned int buzsec;
 volatile unsigned char DispData;
 
 static uint8_t usartNum;
+static uint8_t usartRunflg =0;
 uint8_t senddata[2];
 /**********************************************************************/
 /**********************************************************************/
@@ -101,6 +102,7 @@ void Kscan()
 	static uint8_t childflg =0 ,timerflg =0,windflg =0,count=0;
 	unsigned int i = (unsigned int)((KeyFlag[1]<<8) | KeyFlag[0]);
 	uint8_t usartWindNum=0;
+	if(usartRunflg !=1){
 	if(i)
 	{
 		if(i != KeyOldFlag)
@@ -240,6 +242,7 @@ void Kscan()
 		
 			
 		}
+	}
 	else
 	{
 		KeyOldFlag = 0;
@@ -248,10 +251,12 @@ void Kscan()
 	if(usartNum ==1 || usartWindNum ==1){
 		
 		usartNum =0;
+		usartRunflg =1;
 		// Sys_set ();
 		senddata[0]=(ref.windlevel | ref.filterNet<< 4 | ref.timerTim <<5 |ref.childLock << 6|ref.powerflg<<7 ) & 0xff;
 		//senddata[1] =ref.windlevel & 0x0f;
 		USART1_SendData();
+		usartRunflg =0;
 			
 		}
 	}
@@ -263,7 +268,7 @@ void interrupt time0(void)
 {
 	if(TMR2IF)
 	{
-		usartNum ++ ;
+	//	usartNum ++ ;
 		TMR2IF = 0;
 		tcount ++;
 		__CMS_GetTouchKeyValue();

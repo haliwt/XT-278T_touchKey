@@ -41,7 +41,7 @@ uint8_t HDKey_Scan(uint8_t mode)
 		if(key_up&&(POWER_KEY== 1))
 		{
 		    key_up =0 ;
-			Delay_nms(20);
+			Delay_nms(10);
 			if(POWER_KEY== 1 ) 	return POWER_PRES;
 		
 		}else if(POWER_KEY==0)key_up=1;
