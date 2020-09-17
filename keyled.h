@@ -5,12 +5,12 @@
 
 
 /*******************************************************
-					IO¶¨Òå				  
+					IOï¿½ï¿½ï¿½ï¿½				  
 ********************************************************/
 #define		keyLed1		RA7
 #define		keyLed2		RB0
 #define		keyLed3		RB1  //
-#define		keyLed4		RB2   //com control 4 led swtich
+
 
 
 

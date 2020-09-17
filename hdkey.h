@@ -2,6 +2,7 @@
 #define __HDKEY_H__
 
 #include <cms.h>
+#include "delay.h"
 
 /*******************************************************
 					‰ΩçÂÆö‰πâ
@@ -22,7 +23,23 @@ typedef  	int     int16_t;
 /*******************************************************/
 /*******************************************************/
 
-#define		HDKey	RC0				//∂®“ÂRCø⁄ »°√˚HDKey input
+#define	  HDKey	RC0				//POWER KEY
+
+#define  POWER_KEY    RC0     //input IO POWER KEY
+#define  POWER_PRES   1
+
+#define    LED_POWER_RED     RD0  //ÁîµÊ∫êÊåâÈîÆÊåáÁ§∫ÁÅØ
+
+//led output port config 
+#define     LED1	RA3
+#define     LED2 	RA4
+#define		LED3    RB0
+#define		LED4	RB1
+#define     LED5    RB2
+#define     LED6    RB4
+#define     LED7    RC1
+#define     LED8    RC2
+#define     LED9    RC3
 
 
 
@@ -31,6 +48,21 @@ typedef  	int     int16_t;
 
 
 void HDKEY_LED_Init(void);
+void TouchKey_1_LEDOn(void);
+void TouchKey_1_LEDOff(void);
+void TouchKey_2_LEDOn(void);
+void TouchKey_2_LEDOff(void);
+
+void TouchKey_3_LEDOn(void);
+void TouchKey_3_LEDOff(void);
+
+void PowerKey_LEDOn(void);
+void PowerKey_LEDOff(void);
+
+
+
+void HDKEY_LED_Init(void);
+uint8_t HDKey_Scan(uint8_t mode);
 
 
 

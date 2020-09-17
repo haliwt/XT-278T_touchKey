@@ -6,7 +6,7 @@
 
 
 /*******************************************************
-					IO¶¨Òå				  
+					IOï¿½ï¿½ï¿½ï¿½				  
 ********************************************************/
 #define		Led1		RA3
 #define		Led2		RA4  //D12
@@ -21,18 +21,17 @@
 
 
 
-#define    LED_RED     RD2
 
 
-#define  POWER_KEY    RC0     //input IO ¿ª»ú¼ü
-#define  POWER_PRES   1
+
+
 
 
 //extern uint8_t  ChildLock ;
 
 void TurnOff_LED(void);
 void Net_LED_On(void);
-unsigned char HDKey_Scan(unsigned char mode);
+
 
 #endif 
 

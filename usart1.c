@@ -98,10 +98,8 @@ uint8_t BCC(void)
      uint8_t sbytes[1];
 	 sbytes[0]=0xAA;
 	 uint8_t tembyte ;//= sbytes[0];
-	 senddata[1] = 0x4b;
-	// senddata[0]=(ref.windlevel  | ref.filterNet<< 4 | ref.timerTim <<5 |ref.childLock <<6| ref.powerflg <<7) & 0xff;
-	 // senddata[0]=ref.senddata ;
-      tembyte =  sbytes[0]^ senddata[0]^ senddata[1];
+	senddata[1] = 0x4b;
+    tembyte =  sbytes[0]^ senddata[0]^ senddata[1];
     
     return tembyte;
 
