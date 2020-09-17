@@ -247,17 +247,31 @@ void Kscan()
 			if(KeyOldFlag & 0x04) //Net KEY
 			{
 
-                 Delay_nms (3000);
-				 Delay_nms (3000);
-				if(KeyOldFlag & 0x04)
+                if(ref.childLock ==1){
+					if(0 == (KeyREFFlag & 0x04))
+						{
+							KeyREFFlag |= 0x04;
+							usartNum =1;
+							icount++;
+							ref.windlevel = icount;
+						
+						}
+							
+					}
+				else
 				{
+					Delay_nms (3000);
+				    Delay_nms (3000);
+				   if(KeyOldFlag & 0x04)
+				   {
 					KeyREFFlag |= 0x04;
 					ref.filterNet =1;
 				    Led3=1;
 					 usartNum =1;
+				   }
 				}
 			}
-		}
+	}
 	}
 	else
 	{
@@ -273,6 +287,7 @@ void Kscan()
 		usartRunflg =0;
 			
 		}
+	
 	}
 }
 /***********************************************************************
