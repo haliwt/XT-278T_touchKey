@@ -101,7 +101,7 @@ void Kscan()
 	static unsigned int KeyOldFlag = 0,KeyREFFlag = 0;
 	static uint8_t childflg =0 ,timerflg =0,windflg =0,count=0;
 	unsigned int i = (unsigned int)((KeyFlag[1]<<8) | KeyFlag[0]);
-	uint8_t usartWindNum=0;
+
 	if(usartRunflg !=1){
 	if(i)
 	{
@@ -112,23 +112,27 @@ void Kscan()
 			buzf = 1;
 			buzsec = 600;
 		#if 1
-			if((KeyOldFlag & 0x01) && (KeyOldFlag & 0x02))
+			if((KeyOldFlag & 0x01) && (KeyOldFlag & 0x02))//Wind KEY + Timer KEY
 			{
-                 Delay_nms (3000);
-				 Delay_nms (3000);
+                 Delay_nms (5000);
 				 childflg = childflg ^ 0x01;
 				 if((KeyOldFlag & 0x01) && (KeyOldFlag & 0x02)){
 					 if(childflg ==1){
-								
+								 usartNum =0; 
 								ref.childLock = 1;
 								Led4=1;
-								  usartNum =1;
+								Set(ref.childLock,6) ;
+						        // USART1_SendData(); 
+								  usartNum =1; 
+								
 					 }
 					 else{
 					 	ref.childLock = 0;
 						Led4=0;
+						 usartNum =0; 
+						 Set(ref.childLock,6) ;
+						//USART1_SendData();
 						 usartNum =1;
-
 					 }
 				 
 				 }
@@ -136,9 +140,9 @@ void Kscan()
          
 
        #endif 
-		if(KeyOldFlag & 0x01)
+		if(KeyOldFlag & 0x01 && !(KeyOldFlag & 0x02))
 		{
-				if(0 == (KeyREFFlag & 0x01)) //��ʱ����
+				if(0 == (KeyREFFlag & 0x01)) //Timer KEY 
 				{
 					KeyREFFlag |= 0x01;
 					timerflg = timerflg ^ 0x01;
@@ -157,7 +161,7 @@ void Kscan()
 		}
 		
 			
-			if(KeyOldFlag & 0x02)  // wind key 
+			if(KeyOldFlag & 0x02 && !(KeyOldFlag & 0x01))  // wind key 
 			{
 				if(0 == (KeyREFFlag & 0x02))
 				{
@@ -217,7 +221,7 @@ void Kscan()
 				    if(count !=0){
 
 						ref.windlevel = count ;
-						usartWindNum=1;
+						usartNum =1;
 					
 					} 
 
@@ -225,7 +229,7 @@ void Kscan()
 			}
 			
 			
-			if(KeyOldFlag & 0x04) //�����û�����
+			if(KeyOldFlag & 0x04) //Net KEY
 			{
 
                  Delay_nms (3000);
@@ -248,7 +252,7 @@ void Kscan()
 		KeyOldFlag = 0;
 		KeyREFFlag = 0;
 	}
-	if(usartNum ==1 || usartWindNum ==1){
+	if(usartNum ==1){
 		
 		usartNum =0;
 		usartRunflg =1;
@@ -301,7 +305,6 @@ void main(void)
 	   #if 1
 		poweron= HDKey_Scan(1);
 		if(poweron==1){
-			poweron =0;
 			pwflg = pwflg ^ 0x01;
 			if(pwflg ==1){
 			   LED_POWER_RED = 0;
@@ -311,7 +314,6 @@ void main(void)
 			else {
 				ref.powerflg =0;
 				LED_POWER_RED = 1;
-				ref.powerflg=0;
 				USART1_SendData();
 			}
 		}
