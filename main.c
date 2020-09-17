@@ -11,7 +11,7 @@
 /**********************************************************************/
 /*ȫ�ֱ�������*/
 /**********************************************************************/
-volatile unsigned char tcount;
+volatile unsigned char ticount;
 volatile bit buzf;
 volatile unsigned int buzsec;
 
@@ -99,8 +99,9 @@ void Sys_set (void)
 void Kscan()
 {
 	static unsigned int KeyOldFlag = 0,KeyREFFlag = 0;
-	static uint8_t childflg =0 ,timerflg =0,windflg =0,count=0;
+	static uint8_t childflg =0 ,timerflg =0,windflg =0;
 	unsigned int i = (unsigned int)((KeyFlag[1]<<8) | KeyFlag[0]);
+	static uint8_t icount =0,windcount=0 ;
 
 	if(usartRunflg !=1){
 	if(i)
@@ -140,22 +141,32 @@ void Kscan()
          
 
        #endif 
+	    
 		if(KeyOldFlag & 0x01 && !(KeyOldFlag & 0x02))
 		{
 				if(0 == (KeyREFFlag & 0x01)) //Timer KEY 
 				{
 					KeyREFFlag |= 0x01;
-					timerflg = timerflg ^ 0x01;
-					if(timerflg ==1){
-							Led8=1;
-							ref.timerTim = 1;
-							 usartNum =1;
+					if(ref.childLock ==1){
+
+						icount ++;
+						usartNum =1;
+						ref.windlevel = icount;
+						
 					}
 					else{
-						     Led8=0;
-							ref.timerTim = 0;
-							 usartNum =1;
+						timerflg = timerflg ^ 0x01;
+						if(timerflg ==1){
+								Led8=1;
+								ref.timerTim = 1;
+								usartNum =1;
+						}
+						else{
+								Led8=0;
+								ref.timerTim = 0;
+								usartNum =1;
 
+						}
 					}
 				}
 		}
@@ -166,12 +177,18 @@ void Kscan()
 				if(0 == (KeyREFFlag & 0x02))
 				{
 					KeyREFFlag |= 0x02;
-					count =0;
+					if(ref.childLock ==1){
+							usartNum =1;
+							icount++;
+							ref.windlevel = icount;
+					}
+					else{
+					windcount =0;
 					windflg ++;
 					switch(windflg){
 						
 					 case 1: 
-						count =1;  //˯�߷�
+						windcount  =1;  //˯�߷�
 						Led1=1;
 						Led6=0;
 					    Led9=0;
@@ -192,7 +209,7 @@ void Kscan()
 						Led7 =0;
 						
 					
-						count =2;
+						windcount  =2;
 					break;
 					case 3:
 						  Led7 =1;
@@ -202,11 +219,11 @@ void Kscan()
 					      Led6=0;
 						  Led9 =0;
 						
-						 count =3;
+						 windcount  =3;
 					break;
 					
 					case 4:
-						  count =4;
+						  windcount  =4;
 						  windflg=0;
 						  Led6 =1;
 						  Led2= 1; //��ʱ��������
@@ -218,13 +235,13 @@ void Kscan()
 						
 					break;
 					}
-				    if(count !=0){
+				    if(icount !=0){
 
-						ref.windlevel = count ;
+						ref.windlevel = windcount  ;
 						usartNum =1;
 					
 					} 
-
+					}
 				}
 			}
 			if(KeyOldFlag & 0x04) //Net KEY
@@ -251,9 +268,7 @@ void Kscan()
 		
 		usartNum =0;
 		usartRunflg =1;
-		// Sys_set ();
 		senddata[0]=(ref.windlevel | ref.filterNet<< 4 | ref.timerTim <<5 |ref.childLock << 6|ref.powerflg<<7 ) & 0xff;
-		//senddata[1] =ref.windlevel & 0x0f;
 		USART1_SendData();
 		usartRunflg =0;
 			
@@ -269,7 +284,7 @@ void interrupt time0(void)
 	{
 	//	usartNum ++ ;
 		TMR2IF = 0;
-		tcount ++;
+		ticount ++;
 		__CMS_GetTouchKeyValue();
 	}
 	else
@@ -313,9 +328,9 @@ void main(void)
 			}
 		}
 		#endif 
-		if(tcount >= 32)
+		if(ticount >= 32)
 		{
-			tcount = 0;												//������ѭ��4ms
+			ticount = 0;												//������ѭ��4ms
 			Sys_set();
 			//Display();
 			#if (REL_SENDER_ENABLE == 1)//���Ժ궨���Ƿ�Ϊ1
