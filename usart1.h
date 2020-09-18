@@ -17,6 +17,8 @@ struct senddata{
 };
 extern struct  senddata ref;
 
+extern uint8_t senddata[3];
+
 void USART1_Init(void);
 void USART1_SendData(void);
 void delay_ns(unsigned char t);
