@@ -3,7 +3,7 @@
 struct  senddata ref;
 
 
-extern uint8_t senddata[1];
+extern uint8_t senddata[2];
 
 
 
@@ -98,7 +98,6 @@ uint8_t BCC(void)
      uint8_t sbytes[1];
 	 sbytes[0]=0xAA;
 	 uint8_t tembyte ;//= sbytes[0];
-	senddata[1] = 0x4b;
     tembyte =  sbytes[0]^ senddata[0]^ senddata[1];
     
     return tembyte;

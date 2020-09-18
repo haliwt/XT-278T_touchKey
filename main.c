@@ -124,7 +124,7 @@ void Kscan()
 								Led4=1;
 								Set(ref.childLock,6) ;
 						        // USART1_SendData(); 
-								  usartNum =1; 
+								  usartNum =1;  //child lock
 								
 					 }
 					 else{
@@ -133,7 +133,7 @@ void Kscan()
 						 usartNum =0; 
 						 Set(ref.childLock,6) ;
 						//USART1_SendData();
-						 usartNum =1;
+						 usartNum =1; //child lock
 					 }
 				 
 				 }
@@ -147,9 +147,10 @@ void Kscan()
 				if(0 == (KeyREFFlag & 0x01)) //Timer KEY 
 				{
 					KeyREFFlag |= 0x01;
+					icount ++;
 					if(ref.childLock ==1){
 
-						icount ++;
+					
 						usartNum =1;
 						ref.windlevel = icount;
 						
@@ -160,11 +161,13 @@ void Kscan()
 								Led8=1;
 								ref.timerTim = 1;
 								usartNum =1;
+								ref.sendCount = icount;
 						}
 						else{
 								Led8=0;
 								ref.timerTim = 0;
 								usartNum =1;
+								ref.sendCount = icount;
 
 						}
 					}
@@ -177,9 +180,10 @@ void Kscan()
 				if(0 == (KeyREFFlag & 0x02))
 				{
 					KeyREFFlag |= 0x02;
+					icount++;
 					if(ref.childLock ==1){
 							usartNum =1;
-							icount++;
+						
 							ref.windlevel = icount;
 					}
 					else{
@@ -236,7 +240,7 @@ void Kscan()
 					break;
 					}
 				    if(icount !=0){
-
+						ref.sendCount = icount;
 						ref.windlevel = windcount  ;
 						usartNum =1;
 					
@@ -247,12 +251,13 @@ void Kscan()
 			if(KeyOldFlag & 0x04) //Net KEY
 			{
 
-                if(ref.childLock ==1){
+                icount++;
+				if(ref.childLock ==1){
 					if(0 == (KeyREFFlag & 0x04))
 						{
 							KeyREFFlag |= 0x04;
 							usartNum =1;
-							icount++;
+							
 							ref.windlevel = icount;
 						
 						}
@@ -266,6 +271,7 @@ void Kscan()
 				   {
 					KeyREFFlag |= 0x04;
 					ref.filterNet =1;
+					ref.sendCount = icount;
 				    Led3=1;
 					 usartNum =1;
 				   }
@@ -283,6 +289,7 @@ void Kscan()
 		usartNum =0;
 		usartRunflg =1;
 		senddata[0]=(ref.windlevel | ref.filterNet<< 4 | ref.timerTim <<5 |ref.childLock << 6|ref.powerflg<<7 ) & 0xff;
+		senddata[1] =ref.sendCount ;
 		USART1_SendData();
 		usartRunflg =0;
 			
@@ -315,7 +322,7 @@ main������
 ***********************************************************************/
 void main(void)
 {
-    static uint8_t poweron=0,pwflg=0;
+    static uint8_t poweron=0,pwflg=0,pcount=0;
 	asm("clrwdt");
 	USART1_Init();
 	Init_ic();
@@ -331,14 +338,20 @@ void main(void)
 		poweron= HDKey_Scan(1);
 		if(poweron==1){
 			pwflg = pwflg ^ 0x01;
+			pcount ++;
 			if(pwflg ==1){
 			   LED_POWER_RED = 0;
-			   ref.powerflg=1;
+			   ref.powerflg =1;
+			   senddata[0]= ref.powerflg << 7;
+               senddata[1]=pcount;
 			   USART1_SendData();
 			}
 			else {
-				ref.powerflg =0;
+				
 				LED_POWER_RED = 1;
+				ref.powerflg=0;
+				senddata[0] = ref.powerflg << 7;
+				senddata[1]=pcount;
 				USART1_SendData();
 			}
 		}

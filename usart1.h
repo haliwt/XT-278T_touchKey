@@ -6,7 +6,7 @@
 
 struct senddata{
      uint8_t windlevel ;
-	 uint8_t senddata;
+	 uint8_t sendCount;
 	 uint8_t filterNet :1;
 	 uint8_t timerTim :1;
 	 uint8_t sleep :1;
