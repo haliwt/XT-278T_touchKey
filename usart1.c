@@ -3,7 +3,7 @@
 struct  senddata ref;
 
 
-extern uint8_t senddata[2];
+extern uint8_t senddata[3];
 
 
 
@@ -74,13 +74,15 @@ void USART1_SendData(void)
 	    //senddata[0]=(ref.windlevel  | ref.filterNet<< 4 | ref.timerTim <<5 |ref.childLock <<6 | ref.powerflg <<7) & 0xff;
 		
         TXREG1   = 0xAA; //Recebuffer[0];//Recebuffer[0] ;
-		delay_ns(200);//delay_ns(100);
+		delay_ns(100);//delay_ns(100);
 		TXREG1   = senddata[0];  //数据
-		delay_ns(200);//delay_ns(200);
+		delay_ns(100);//delay_ns(200);
 		TXREG1   = senddata[1];  //数据
-		delay_ns(200);
+		delay_ns(100);
+		TXREG1   = senddata[2];  //数据
+		delay_ns(100);
 		TXREG1   = BCC();
-		delay_ns(200); 	//delay_ns(400); 	
+		delay_ns(100); 	//delay_ns(400); 	
 		
 
 }
@@ -98,7 +100,7 @@ uint8_t BCC(void)
      uint8_t sbytes[1];
 	 sbytes[0]=0xAA;
 	 uint8_t tembyte ;//= sbytes[0];
-    tembyte =  sbytes[0]^ senddata[0]^ senddata[1];
+    tembyte =  sbytes[0]^ senddata[0]^ senddata[1]^senddata[2];
     
     return tembyte;
 
