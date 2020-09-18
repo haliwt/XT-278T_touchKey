@@ -13,7 +13,7 @@ void REL_SenderLoop();
 
 //////////////////////////////////////////////////////
 // 函数实现定义
-#include "iic_soft.h"
+
 #define REL_PreSendCallBack()								I2C_WriteStart()
 #define REL_SendByte(ch)									I2C_Write1bYTE(ch)
 #define REL_EndSendCallBack()								I2C_WriteStop()

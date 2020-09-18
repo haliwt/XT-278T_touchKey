@@ -23,7 +23,7 @@ typedef  	int     int16_t;
 /*******************************************************/
 /*******************************************************/
 
-#define	  HDKey	RC0				//POWER KEY
+
 
 #define  POWER_KEY    RC0     //input IO POWER KEY
 #define  POWER_PRES   1
@@ -34,8 +34,8 @@ typedef  	int     int16_t;
 #define     LED1	RA3
 #define     LED2 	RA4
 #define		LED3    RB0
-#define		LED4	RB1
-#define     LED5    RB2
+#define		LED4	RB2 //
+#define     LED5    RB1
 #define     LED6    RB4
 #define     LED7    RC1
 #define     LED8    RC2

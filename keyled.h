@@ -13,7 +13,18 @@
 
 
 
-
+/*******************************************************
+					IO����				  
+********************************************************/
+#define		Led1		RA3
+#define		Led2		RA4  //D12
+#define		Led3		RB0  //
+#define		Led4		RB2   //com control 4 led swtich
+#define     Led5        RB1
+#define     Led6        RB5
+#define     Led7        RC1
+#define     Led8        RC2
+#define     Led9        RC3
 
 
 
