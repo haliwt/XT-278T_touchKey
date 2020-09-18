@@ -192,13 +192,13 @@ void Kscan()
 					switch(windflg){
 						
 					 case 1: 
-						windcount  =1;  //˯�߷�
+						windcount  =1;  //wind_sleep
 						Led1=1;
 						Led6=0;
 					    Led9=0;
 						Led7 =0;
 						Led8= 0;
-						Led4 =1;
+						Led4 =0; //NET KEY LED be changed 
 						Led3 = 0;
 						Led2=0;
 					  break;
@@ -207,7 +207,7 @@ void Kscan()
 					case 2:
 						Led9=1;
 						Led2= 1; //��ʱ��������
-						Led4 =0; //���������� ��
+						Led4 =1; //NET KEY TURN ON
 						Led6=0;
 					    Led1=0;
 						Led7 =0;
@@ -218,7 +218,7 @@ void Kscan()
 					case 3:
 						  Led7 =1;
 						  Led2= 1; //��ʱ��������
-						  Led4 =0; //���������� ��
+						  Led4 =1; //���������� ��
 						  Led1=0;
 					      Led6=0;
 						  Led9 =0;
@@ -230,8 +230,8 @@ void Kscan()
 						  windcount  =4;
 						  windflg=0;
 						  Led6 =1;
-						  Led2= 1; //��ʱ��������
-						  Led4 =0; //���������� ��
+						  Led2= 1; //TIMER KEY LED ON
+						  Led4 =1; //NET KEY LED ON
 						  Led9 =0;
 						  Led1=0;
 					      Led7=0;
@@ -322,7 +322,7 @@ main������
 ***********************************************************************/
 void main(void)
 {
-    static uint8_t poweron=0,pwflg=0,pcount=0;
+    static uint8_t poweron=0,pwflg=0,pcount=0,keyflg=0;
 	asm("clrwdt");
 	USART1_Init();
 	Init_ic();
@@ -337,17 +337,19 @@ void main(void)
 	   #if 1
 		poweron= HDKey_Scan(1);
 		if(poweron==1){
+			poweron =0;
 			pwflg = pwflg ^ 0x01;
 			pcount ++;
-			if(pwflg ==1){
+			if(pwflg ==1 && keyflg ==0){
+			    keyflg =1;
 			   LED_POWER_RED = 0;
 			   ref.powerflg =1;
 			   senddata[0]= ref.powerflg << 7;
                senddata[1]=pcount;
 			   USART1_SendData();
 			}
-			else {
-				
+			else if(keyflg !=1){
+				keyflg =1;
 				LED_POWER_RED = 1;
 				ref.powerflg=0;
 				senddata[0] = ref.powerflg << 7;
