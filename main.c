@@ -124,7 +124,7 @@ void Kscan()
 						ref.childLock = 1;
 
 						//Set(ref.childLock,6) ;
-						usartNum =0;  //child lock
+						usartNum =1;  //child lock
 						senddata[0]=(ref.windlevel | ref.filterNet<< 4 | ref.timerTim <<5 |ref.childLock << 6|ref.powerflg<<7 ) & 0xff;
 						senddata[1] =ref.sendCount ;
 						senddata[2] = ref.TimingCount;
@@ -133,7 +133,7 @@ void Kscan()
 					 }
 					 else{
 					 	ref.childLock = 0;
-					    usartNum =0; 
+					    usartNum =1; 
 						senddata[0]=(ref.windlevel | ref.filterNet<< 4 | ref.timerTim <<5 |ref.childLock << 6|ref.powerflg<<7 ) & 0xff;
 						senddata[1] =ref.sendCount ;
 						senddata[2] = ref.TimingCount;
