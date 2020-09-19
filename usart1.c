@@ -3,7 +3,7 @@
 struct  senddata ref;
 
 
-extern uint8_t senddata[3];
+
 
 
 

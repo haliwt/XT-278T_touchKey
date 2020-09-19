@@ -20,7 +20,7 @@ volatile unsigned char DispData;
 
 static uint8_t usartNum;
 static uint8_t usartRunflg =0;
-uint8_t senddata[2];
+uint8_t senddata[3];
 /**********************************************************************/
 /**********************************************************************/
 /***********************************************************************
@@ -100,7 +100,7 @@ void Sys_set (void)
 void Kscan()
 {
 	static unsigned int KeyOldFlag = 0,KeyREFFlag = 0;
-	static uint8_t childflg =0 ,timerflg =0,windflg =0;
+	static uint8_t childflg =0 ,windflg =0,itimingcount =0;
 	unsigned int i = (unsigned int)((KeyFlag[1]<<8) | KeyFlag[0]);
 	static uint8_t icount =0;
 
@@ -143,7 +143,7 @@ void Kscan()
 
        #endif 
 	    
-		if(KeyOldFlag & 0x01 && !(KeyOldFlag & 0x02))
+		if(KeyOldFlag & 0x01 && !(KeyOldFlag & 0x02)) //TIMER KEY 
 		{
 				if(0 == (KeyREFFlag & 0x01)) //Timer KEY 
 				{
@@ -157,26 +157,59 @@ void Kscan()
 						
 					}
 					else{
-						timerflg = timerflg ^ 0x01;
-						if(timerflg ==1){
-								Led8=1;
+						itimingcount ++ ;
+						switch(itimingcount){
+				
+						case 1:
+								Led2=1;// D8,key of led turn on 
+								Led3 = 1;
 								ref.timerTim = 1;
 								usartNum =1;
 								ref.sendCount = icount;
-						}
-						else{
-								Led8=0;
-								ref.timerTim = 0;
+								ref.TimingCount =5; // timer timing  5 minute
+
+						break;
+						case 2:
+								Led2=1; //D8,key of led turn on 
+								Led3 = 0;
+								Led8 =1 ;
+								ref.timerTim = 1; //Tunr on timer on
 								usartNum =1;
 								ref.sendCount = icount;
+								ref.TimingCount = 10;
 
-						}
+						break; 
+						case 3: 
+							Led2=1 ;
+							Led3 =0 ;
+							Led8 =0;
+							Led5= 1;
+							ref.timerTim = 1;
+							usartNum =1;
+							ref.sendCount = icount;
+							ref.TimingCount = 15;
+
+
+						break;
+
+						case 4:
+						    itimingcount =0;
+							Led2 =1 ;
+							Led3 =0 ;
+							Led8 =0;
+							Led5= 0;
+							ref.timerTim = 0; //Turn off timer 
+							usartNum =1;
+							ref.sendCount = icount;
+							ref.TimingCount = 0;
+
+						break;
+						} //end timingcount
 					}
 				}
 		}
 		
-			
-			if(KeyOldFlag & 0x02 && !(KeyOldFlag & 0x01))  // wind key 
+		if(KeyOldFlag & 0x02 && !(KeyOldFlag & 0x01))  // wind key 
 			{
 				if(0 == (KeyREFFlag & 0x02))
 				{
@@ -201,7 +234,7 @@ void Kscan()
 							Led9=0;
 							Led7 =0;
 							Led8= 0;
-							Led4 =1; //turn OFF Net
+							Led4 =0; //turn OFF Net
 							Led3 = 0;
 							Led2=0;
 						break;
@@ -211,8 +244,8 @@ void Kscan()
 							ref.windlevel  =2;
 							ref.sendCount = icount;
 							Led9=1;
-							Led2= 1; //��ʱ��������
-							Led4 =0; // NET KEY LED ,ON
+							Led2= 1; //Timer key lamp led
+							Led4 =1; // NET KEY LED ,ON
 							Led6=0;
 							Led1=0;
 							Led7 =0;
@@ -223,8 +256,8 @@ void Kscan()
 							usartNum =1;
 							ref.sendCount = icount;
 							Led7 =1;
-							Led2= 1; //��ʱ��������
-							Led4 =0; // turn of NET KEY LED
+							Led2= 1; // Timer key lamp led
+							Led4 =1; // NET KEY lamp LED 
 							Led1=0;
 							Led6=0;
 							Led9 =0;	
@@ -235,9 +268,9 @@ void Kscan()
 							usartNum =1;
 							ref.sendCount = icount;
 							windflg=0;
-							  Led6 =1;
-							Led2= 1; //��ʱ��������
-							Led4 =0; //���������� ��
+							Led6 =1;
+							Led2= 1; //Timer KEY lamp led
+							Led4 =1; //NET KEY lamp led
 							Led9 =0;
 							Led1=0;
 							Led7=0;
@@ -291,7 +324,7 @@ void Kscan()
 		usartRunflg =1;
 		senddata[0]=(ref.windlevel | ref.filterNet<< 4 | ref.timerTim <<5 |ref.childLock << 6|ref.powerflg<<7 ) & 0xff;
 		senddata[1] =ref.sendCount ;
-		senddata[2] = ref. timingCount;
+		senddata[2] = ref.TimingCount;
 		USART1_SendData();
 		usartRunflg =0;
 			
