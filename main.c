@@ -120,22 +120,27 @@ void Kscan()
 				 childflg = childflg ^ 0x01;
 				 if((KeyOldFlag & 0x01) && (KeyOldFlag & 0x02)){
 					 if(childflg ==1){
-								 usartNum =0; 
-								ref.childLock = 1;
-							
-								Set(ref.childLock,6) ;
-						        // USART1_SendData(); 
-								  usartNum =1;  //child lock
+						usartNum =0; 
+						ref.childLock = 1;
+
+						//Set(ref.childLock,6) ;
+						usartNum =0;  //child lock
+						senddata[0]=(ref.windlevel | ref.filterNet<< 4 | ref.timerTim <<5 |ref.childLock << 6|ref.powerflg<<7 ) & 0xff;
+						senddata[1] =ref.sendCount ;
+						senddata[2] = ref.TimingCount;
+						USART1_SendData();
 								
 					 }
 					 else{
 					 	ref.childLock = 0;
+					    usartNum =0; 
+						senddata[0]=(ref.windlevel | ref.filterNet<< 4 | ref.timerTim <<5 |ref.childLock << 6|ref.powerflg<<7 ) & 0xff;
+						senddata[1] =ref.sendCount ;
+						senddata[2] = ref.TimingCount;
+						USART1_SendData();
 						
-						 usartNum =0; 
-						 Set(ref.childLock,6) ;
-						//USART1_SendData();
-						 usartNum =1; //child lock
 					 }
+					 	
 				 
 				 }
 	       }
@@ -368,6 +373,7 @@ void main(void)
 	Init_ic();
 	Delay_nms(200);													//�ϵ���ʱ200ms
 	Init_ram();	  //�ϵ�����?
+	HDKEY_LED_Init();
 
 	while(1)
 	{
