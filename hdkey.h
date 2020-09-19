@@ -28,7 +28,7 @@ typedef  	int     int16_t;
 #define  POWER_KEY    RC0     //input IO POWER KEY
 #define  POWER_PRES   1
 
-#define    LED_POWER_RED     RD0  //电源按键指示灯
+#define    LED_POWER_RED     RD2  //电源按键指示灯
 
 
 

@@ -20,6 +20,7 @@ volatile unsigned char DispData;
 
 static uint8_t usartNum;
 static uint8_t usartRunflg =0;
+uint8_t powerOn;
 uint8_t senddata[3];
 /**********************************************************************/
 /**********************************************************************/
@@ -380,32 +381,44 @@ void main(void)
 		OSCCON = 0x71;
 	  
 	   	
-		poweron= HDKey_Scan(0);
+		powerOn= HDKey_Scan(0);
+		 // powerOn = POWER_KEY ;
 		#if 1
-		if(poweron==1){
-			poweron =0;
-			pcount ++;
-			if(pcount >250)pcount =0;
+		if(powerOn==1){
+			
 			pwflg = pwflg ^ 0x01;
-			if(pwflg ==1 && keyflg==0){
-			   keyflg = 1;
+			keyflg ++;
+			//if(pwflg ==1 && keyflg ==0){
+			if(keyflg == 1){
+			 // keyflg =1;
 			   LED_POWER_RED = 0;
 			
 			   ref.powerflg =1;
-			   ref.windlevel =4;
-			   senddata[0] = (ref.windlevel |ref.powerflg << 7);
-               senddata[1]=pcount;
+			   ref.sendCount = 0xAA;
+			   ref.windlevel = 0x04;
+			   ref.TimingCount =0;
+			   ref.filterNet =0;
+			   ref.childLock =0;
+			  senddata[0]=(ref.windlevel | ref.filterNet<< 4 | ref.timerTim <<5 |ref.childLock << 6|ref.powerflg<<7 ) & 0xff;
+		      senddata[1] =ref.sendCount ;
+		      senddata[2] = ref.TimingCount;
 			   USART1_SendData();
 			}
-			else if(keyflg !=1){
-				keyflg =1;
-				LED_POWER_RED = 1;
-		
-				ref.powerflg=0;
-			
-				senddata[0] = ref.powerflg << 7;
-				senddata[1]=pcount;
-				USART1_SendData();
+			//else if(keyflg ==0) {
+			else {
+				 
+				keyflg =0;
+				ref.powerflg =0;
+				ref.sendCount = 0xAB;
+				ref.windlevel = 0x04;
+			   ref.TimingCount =0;
+			   ref.filterNet =0;
+			   ref.childLock =0;
+			   ref.sendCount ;
+			  senddata[0]=(ref.windlevel | ref.filterNet<< 4 | ref.timerTim <<5 |ref.childLock << 6|ref.powerflg<<7 ) & 0xff;
+		      senddata[1] =ref.sendCount ;
+		      senddata[2] = ref.TimingCount;
+			  USART1_SendData();
 			}
 		}
 		#endif 
@@ -416,8 +429,6 @@ void main(void)
 				ticount = 0;												//������ѭ��4ms
 				Sys_set();
 			  
-				
-				
 				#if (REL_SENDER_ENABLE == 1)//���Ժ궨���Ƿ�Ϊ1
 					REL_SenderLoop();//�����ӳ���
 				#endif
