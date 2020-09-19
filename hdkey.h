@@ -3,6 +3,8 @@
 
 #include <cms.h>
 #include "delay.h"
+#include "usart1.h"
+#include "keyled.h"
 
 /*******************************************************
 					位定义
@@ -36,7 +38,8 @@ typedef  	int     int16_t;
 
 
 
-
+void PowerOn_SendData_Init(void);
+void PowerOff_SendData_Fun(void);
 
 
 

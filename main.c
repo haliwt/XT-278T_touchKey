@@ -156,8 +156,6 @@ void Kscan()
 					KeyREFFlag |= 0x01;
 					icount ++;
 					if(ref.childLock ==1){
-
-					
 						usartNum =1;
 						ref.windlevel = icount;
 						
@@ -168,7 +166,9 @@ void Kscan()
 				
 						case 1:
 								Led2=1;// D8,key of led turn on 
-								Led3 = 1;
+								Led3 = 0;
+								Led8 =1;
+								Led5=0;
 								ref.timerTim = 1;
 								usartNum =1;
 								ref.sendCount = icount;
@@ -177,8 +177,9 @@ void Kscan()
 						break;
 						case 2:
 								Led2=1; //D8,key of led turn on 
-								Led3 = 0;
-								Led8 =1 ;
+								Led3 = 1;
+								Led8 =0 ;
+								Led5=0;
 								ref.timerTim = 1; //Tunr on timer on
 								usartNum =1;
 								ref.sendCount = icount;
@@ -235,38 +236,23 @@ void Kscan()
 							ref.windlevel   =1;  //sleep_wind
 							usartNum =1;
 							ref.sendCount = icount;
-							Led1=1;
-							Led6=0;
-							Led9=0;
-							Led7 =0;
-							Led8= 0;
-							Led4 =0; //turn OFF Net
-							Led3 = 0;
-							Led2=0;
+							WindLevel_SleepLed();
+							
 						break;
 						case 2: //wind_middle
 						
 							usartNum =1;
 							ref.windlevel  =2;
 							ref.sendCount = icount;
-							Led9=1;
-							Led2= 1; //Timer key lamp led
-							Led4 =1; // NET KEY LED ,ON
-							Led6=0;
-							Led1=0;
-							Led7 =0;
+							WindLevel_MiddleLed();
+							
 						break;
 						case 3: //wind_high
 					
 						    ref.windlevel   =3;
 							usartNum =1;
 							ref.sendCount = icount;
-							Led7 =1;
-							Led2= 1; // Timer key lamp led
-							Led4 =1; // NET KEY lamp LED 
-							Led1=0;
-							Led6=0;
-							Led9 =0;	
+							WindLevel_HighLed();
 						
 						break;
 						case 4 : //wind_auto
@@ -274,12 +260,7 @@ void Kscan()
 							usartNum =1;
 							ref.sendCount = icount;
 							windflg=0;
-							Led6 =1;
-							Led2= 1; //Timer KEY lamp led
-							Led4 =1; //NET KEY lamp led
-							Led9 =0;
-							Led1=0;
-							Led7=0;
+							WindLevel_AutoLed();
 						break;
 					
 						}
@@ -368,7 +349,7 @@ void interrupt time0(void)
 ***********************************************************************/
 void main(void)
 {
-    static uint8_t poweron=0,pwflg=0,pcount=0,keyflg=0;
+    static uint8_t keynum=0,keyflg=0;
 	asm("clrwdt");
 	USART1_Init();
 	Init_ic();
@@ -379,46 +360,22 @@ void main(void)
 	while(1)
 	{
 		OSCCON = 0x71;
-	  
-	   	
-		powerOn= HDKey_Scan(0);
-		 // powerOn = POWER_KEY ;
+	    powerOn= HDKey_Scan(0);
+		keyflg =0;
 		#if 1
 		if(powerOn==1){
 			
-			pwflg = pwflg ^ 0x01;
-			keyflg ++;
-			//if(pwflg ==1 && keyflg ==0){
-			if(keyflg == 1){
-			 // keyflg =1;
-			   LED_POWER_RED = 0;
-			
-			   ref.powerflg =1;
-			   ref.sendCount = 0xAA;
-			   ref.windlevel = 0x04;
-			   ref.TimingCount =0;
-			   ref.filterNet =0;
-			   ref.childLock =0;
-			  senddata[0]=(ref.windlevel | ref.filterNet<< 4 | ref.timerTim <<5 |ref.childLock << 6|ref.powerflg<<7 ) & 0xff;
-		      senddata[1] =ref.sendCount ;
-		      senddata[2] = ref.TimingCount;
-			   USART1_SendData();
+			keynum ++;
+			if(keynum==1 && keyflg ==0){
+			   keyflg =1;
+			   PowerOn_SendData_Init();
+			  
 			}
-			//else if(keyflg ==0) {
-			else {
-				 
-				keyflg =0;
-				ref.powerflg =0;
-				ref.sendCount = 0xAB;
-				ref.windlevel = 0x04;
-			   ref.TimingCount =0;
-			   ref.filterNet =0;
-			   ref.childLock =0;
-			   ref.sendCount ;
-			  senddata[0]=(ref.windlevel | ref.filterNet<< 4 | ref.timerTim <<5 |ref.childLock << 6|ref.powerflg<<7 ) & 0xff;
-		      senddata[1] =ref.sendCount ;
-		      senddata[2] = ref.TimingCount;
-			  USART1_SendData();
+			else if(keyflg ==0) {
+				keynum =0;
+				keyflg =1;
+				PowerOff_SendData_Fun();
+			
 			}
 		}
 		#endif 

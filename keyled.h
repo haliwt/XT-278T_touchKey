@@ -3,19 +3,7 @@
 #include <cms.h>
 
 
-
-/*******************************************************
-					IO����				  
-********************************************************/
-#define		keyLed1		RA7
-#define		keyLed2		RB0
-#define		keyLed3		RB1  //
-
-
-
-/*******************************************************
-					IO����				  
-********************************************************/
+// touch key led 
 #define		Led1		RA3
 #define		Led2		RA4  //D12
 #define		Led3		RB0  //
@@ -27,13 +15,20 @@
 #define     Led9        RC3
 
 
+void TimerTiming_Led(void);
+void WindLevel_SleepLed(void);
+void WindLevel_MiddleLed(void);
+void WindLevel_HighLed(void);
+void WindLevel_AutoLed(void);
+
+void TouchKeyLed_AllOff(void);
 
 
 
 
-//extern uint8_t  ChildLock ;
 
-void KeyLed_Init(void);
+
+
 
 
 
