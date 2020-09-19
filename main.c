@@ -155,6 +155,7 @@ void Kscan()
 				{
 					KeyREFFlag |= 0x01;
 					icount ++;
+					if(icount > 245) icount =2;
 					if(ref.childLock ==1){
 						usartNum =1;
 						ref.windlevel = icount;
@@ -222,6 +223,7 @@ void Kscan()
 				{
 					KeyREFFlag |= 0x02;
 					icount++;
+					if(icount >250)icount =0;
 					if(ref.childLock ==1){
 							usartNum =1;
 						
@@ -273,6 +275,7 @@ void Kscan()
 			{
 
                 icount++;
+				if(icount > 252)icount =1;
 				if(ref.childLock ==1){
 					if(0 == (KeyREFFlag & 0x04))
 						{
@@ -365,15 +368,17 @@ void main(void)
 		#if 1
 		if(powerOn==1){
 			
-			keynum ++;
+			keynum = keynum ^ 0x01;
 			if(keynum==1 && keyflg ==0){
 			   keyflg =1;
+			   ref.powerflg =1;
 			   PowerOn_SendData_Init();
 			  
 			}
-			else if(keyflg ==0) {
-				keynum =0;
+			else if(keyflg ==0 ) {
+				
 				keyflg =1;
+				ref.powerflg =0;
 				PowerOff_SendData_Fun();
 			
 			}

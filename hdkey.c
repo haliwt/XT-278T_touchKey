@@ -33,7 +33,7 @@ uint8_t HDKey_Scan(uint8_t mode)
 		if(key_up&&(POWER_KEY== 0))
 		{
 		    key_up =0 ;
-			Delay_nms(20);
+			Delay_nms(40);
 			if(POWER_KEY== 0 ) 	return POWER_PRES;
 		
 		}
@@ -50,10 +50,13 @@ uint8_t HDKey_Scan(uint8_t mode)
 *****************************************************/
 void PowerOn_SendData_Init(void)
 {
+	static uint8_t n=0;
+	n++ ;
+	if(n>250)n=0;
 	 LED_POWER_RED = 0;
 	WindLevel_AutoLed();
-	ref.powerflg =1;
-	ref.sendCount = 0xAA;
+	
+	ref.sendCount = n;
 	ref.windlevel = 0x04;
 	ref.TimingCount =0;
 	ref.filterNet =0;
@@ -76,7 +79,7 @@ void PowerOff_SendData_Fun(void)
 {
 		LED_POWER_RED = 1;
 		TouchKeyLed_AllOff();
-		ref.powerflg =0;
+		
 		ref.sendCount = 0xAB;
 		ref.windlevel = 0x04;
 		ref.TimingCount =0;
