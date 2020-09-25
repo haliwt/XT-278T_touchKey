@@ -359,7 +359,8 @@ void main(void)
 	Delay_nms(200);													//�ϵ���ʱ200ms
 	Init_ram();	  //�ϵ�����?
 	HDKEY_LED_Init();
-
+	TouchKeyLed_AllOff();
+    LED_POWER_RED  =1;
 	while(1)
 	{
 		OSCCON = 0x71;
@@ -369,14 +370,15 @@ void main(void)
 		if(powerOn==1){
 			
 			keynum = keynum ^ 0x01;
-			if(keynum==1 && keyflg ==0){
-			   keyflg =1;
+			if(keynum==1 ){
+			  
+			    LED_POWER_RED  =0;
 			   ref.powerflg =1;
 			   PowerOn_SendData_Init();
 			  
 			}
-			else if(keyflg ==0 ) {
-				
+			else  {
+				LED_POWER_RED  =1;
 				keyflg =1;
 				ref.powerflg =0;
 				PowerOff_SendData_Fun();
